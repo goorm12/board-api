@@ -1,12 +1,14 @@
 package com.example.board.post.controller;
 
 import com.example.board.post.dto.PostCreateRequest;
+import com.example.board.post.dto.PostPageResponse;
 import com.example.board.post.service.PostService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 // HTTP 요청을 받아 JSON 등의 응답을 반환하는 REST 컨트롤러로 등록합니다.
 @RestController
@@ -32,6 +34,19 @@ public class PostController {
 
         // HTTP 상태 코드 200 OK와 생성된 게시글 id를 반환합니다.
         return ResponseEntity.ok(postId);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<PostPageResponse> getPosts(
+            @PageableDefault(
+                    sort="id",
+                    direction = Sort.Direction.DESC
+            )Pageable pageable
+            ) {
+        PostPageResponse response = postService.getPosts(pageable);
+
+        return ResponseEntity.ok(response);
     }
 }
 

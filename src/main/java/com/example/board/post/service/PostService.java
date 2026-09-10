@@ -1,10 +1,17 @@
 package com.example.board.post.service;
 
 import com.example.board.post.dto.PostCreateRequest;
+import com.example.board.post.dto.PostListResponse;
+import com.example.board.post.dto.PostPageResponse;
 import com.example.board.post.entity.Post;
 import com.example.board.post.repository.PostRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 // 비즈니스 로직을 처리하는 Spring Bean으로 등록합니다.
 @Service
@@ -32,5 +39,14 @@ public class PostService {
 
         // Controller가 응답에 사용할 수 있도록 저장된 게시글 id를 반환합니다.
         return savedPost.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public PostPageResponse getPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+
+        List<PostListResponse> data = posts.getContent().stream().map(post -> new PostListResponse(post.getId(), post.getTitle(), post.getAuthor())).toList();
+
+        return new PostPageResponse(data,posts.getNumber(), posts.getTotalElements(), posts.getTotalPages());
     }
 }
